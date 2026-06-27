@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const BACKEND_URL = "https://23ae061f-22af-4e96-a130-3b1f95ecd33c-00-1si8464307oa4.janeway.replit.dev:3000";
+const BACKEND_URL = "https://web-production-02d30.up.railway.app";
 
 const SECTIONS = {
   "Chem & Physics": ["Stoichiometry", "Thermodynamics", "Electrochemistry", "Kinetics", "Acids & Bases", "Fluids & Gas Laws", "Optics & Light", "Electricity & Circuits"],
