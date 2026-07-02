@@ -38,9 +38,10 @@ export default function App() {
   "💡 Tip: In genetics, dominant alleles don't always mean more common in a population.",
 ];
 
-const [loadingTip] = useState(() => TIPS[Math.floor(Math.random() * TIPS.length)]);
+const [loadingTip, setLoadingTip] = useState(() => TIPS[Math.floor(Math.random() * TIPS.length)]);
 
   const loadQuestion = async () => {
+    setLoadingTip(TIPS[Math.floor(Math.random() * TIPS.length)]);
     setLoading(true);
     setQuestion(null);
     setAnswered(false);
@@ -144,18 +145,19 @@ const [loadingTip] = useState(() => TIPS[Math.floor(Math.random() * TIPS.length)
               })}
             </div>
             {answered && (
-              <div style={styles.explanation}>
-                <div style={styles.explanationLabel}>Explanation</div>
-                {question.explanation}
-              </div>
+              <>
+                <button style={{...styles.btnPrimary, marginTop: 12}} onClick={loadQuestion}>Next Question →</button>
+                <div style={styles.explanation}>
+                  <div style={styles.explanationLabel}>Explanation</div>
+                  {question.explanation}
+                </div>
+              </>
             )}
           </>
         )}
       </div>
 
-      {answered && !celebrating && (
-        <button style={styles.btnPrimary} onClick={loadQuestion}>Next Question →</button>
-      )}
+      
     </div>
   );
 
