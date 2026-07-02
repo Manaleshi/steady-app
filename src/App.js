@@ -91,6 +91,7 @@ const [loadingTip] = useState(() => TIPS[Math.floor(Math.random() * TIPS.length)
 
   if (screen === "question") return (
     <div style={styles.wrap}>
+      <style>{globalStyles}</style>
       <div style={styles.header}>
         <button style={styles.back} onClick={() => setScreen("topics")}>← Back</button>
         <div style={styles.headerTitle}>Steady</div>
