@@ -23,6 +23,22 @@ export default function App() {
   const [streak, setStreak] = useState(0);
   const [correct, setCorrect] = useState(0);
   const [celebrating, setCelebrating] = useState(false);
+  const TIPS = [
+  "🧘 Breathe in for 4 counts, hold for 2, out for 4. Your brain works better relaxed.",
+  "💡 Tip: Eliminate two wrong answers first — your odds jump from 25% to 50%.",
+  "💪 You've chosen to prepare. That already puts you ahead.",
+  "🧠 Tip: If you're stuck, trust your first instinct — it's right more often than you think.",
+  "🌱 Every question you answer makes the next one easier.",
+  "💡 Tip: AnOx RedCat — Anode = Oxidation, Cathode = Reduction. Never forget it.",
+  "🧘 Roll your shoulders back. Unclench your jaw. You've got this.",
+  "💡 Tip: For rate laws, remember — you can only determine order from experiments, not stoichiometry.",
+  "💪 Struggling with a topic means you're learning it. That's the whole point.",
+  "💡 Tip: Henderson-Hasselbalch: pH = pKa + log([A⁻]/[HA]). Memorize this one.",
+  "🌱 One question at a time. That's all this is.",
+  "💡 Tip: In genetics, dominant alleles don't always mean more common in a population.",
+];
+
+const [loadingTip] = useState(() => TIPS[Math.floor(Math.random() * TIPS.length)]);
 
   const loadQuestion = async () => {
     setLoading(true);
@@ -97,7 +113,8 @@ export default function App() {
         {loading && (
           <div style={styles.loadingWrap}>
             <div style={styles.spinner} />
-            <div style={styles.loadingText}>Generating your question…</div>
+            <div style={styles.loadingText}>Preparing your question…</div>
+            <div style={styles.loadingTip}>{loadingTip}</div>
           </div>
         )}
         {question?.error && !loading && (
@@ -205,43 +222,44 @@ export default function App() {
 const styles = {
   wrap: { fontFamily: "system-ui, sans-serif", background: "#f0ede8", minHeight: "100vh", padding: "16px 16px 64px", maxWidth: 480, margin: "0 auto" },
   header: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 },
-  headerTitle: { fontSize: "1.1rem", fontWeight: 700, color: "#4a7c6f" },
-  back: { background: "none", border: "none", color: "#4a7c6f", fontSize: "0.95rem", cursor: "pointer", fontWeight: 600, padding: "8px 0" },
-  streakBadge: { fontSize: "1rem", fontWeight: 700, color: "#4a7c6f" },
-  homeHeader: { textAlign: "center", marginBottom: 24 },
-  logo: { fontSize: "2.8rem", fontWeight: 800, color: "#4a7c6f", letterSpacing: "-0.02em" },
-  tagline: { fontSize: "0.85rem", color: "#6b6560", marginTop: 6, fontStyle: "italic", lineHeight: 1.4 },
-  progressWrap: { marginBottom: 16 },
-  progressLabel: { fontSize: "0.78rem", color: "#6b6560", marginBottom: 6, fontWeight: 500 },
-  progressBar: { background: "#ddd8d0", borderRadius: 4, height: 8, overflow: "hidden" },
+  headerTitle: { fontSize: "1rem", fontWeight: 700, color: "#4a7c6f" },
+  back: { background: "none", border: "none", color: "#4a7c6f", fontSize: "0.9rem", cursor: "pointer", fontWeight: 600, padding: "8px 0" },
+  streakBadge: { fontSize: "0.9rem", fontWeight: 700, color: "#4a7c6f" },
+  homeHeader: { textAlign: "center", marginBottom: 20 },
+  logo: { fontSize: "2.5rem", fontWeight: 800, color: "#4a7c6f", letterSpacing: "-0.02em" },
+  tagline: { fontSize: "0.82rem", color: "#6b6560", marginTop: 6, fontStyle: "italic", lineHeight: 1.4 },
+  progressWrap: { marginBottom: 14 },
+  progressLabel: { fontSize: "0.72rem", color: "#6b6560", marginBottom: 5, fontWeight: 500 },
+  progressBar: { background: "#ddd8d0", borderRadius: 4, height: 6, overflow: "hidden" },
   progressFill: { height: "100%", background: "#4a7c6f", borderRadius: 4, transition: "width 0.4s ease" },
-  breathe: { background: "#e0eeeb", border: "1px solid #7aab9e", borderRadius: 12, padding: "10px 16px", fontSize: "0.82rem", color: "#4a7c6f", fontWeight: 500, display: "flex", alignItems: "center", gap: 8, marginBottom: 16, lineHeight: 1.4 },
-  breatheDot: { width: 8, height: 8, borderRadius: "50%", background: "#4a7c6f", display: "inline-block", flexShrink: 0 },
-  card: { background: "#faf8f5", border: "1px solid #ddd8d0", borderRadius: 16, padding: "20px 16px", boxShadow: "0 2px 14px rgba(0,0,0,0.07)", marginBottom: 16, minHeight: 220 },
-  topicTag: { fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.08em", color: "#4a7c6f", fontWeight: 600, marginBottom: 10, fontFamily: "monospace" },
-  questionText: { fontSize: "1.05rem", lineHeight: 1.6, color: "#1e1e1e", fontWeight: 500, marginBottom: 20 },
-  optionsGrid: { display: "flex", flexDirection: "column", gap: 10 },
-  optBtn: { padding: "14px 16px", borderRadius: 12, border: "1.5px solid", fontSize: "0.88rem", cursor: "pointer", textAlign: "left", lineHeight: 1.4, fontFamily: "inherit", transition: "all 0.15s", width: "100%" },
-  explanation: { background: "#e0eeeb", borderLeft: "3px solid #4a7c6f", borderRadius: 8, padding: "14px 16px", fontSize: "0.86rem", lineHeight: 1.6, color: "#1e1e1e", marginTop: 16 },
-  explanationLabel: { fontSize: "0.65rem", textTransform: "uppercase", letterSpacing: "0.06em", color: "#4a7c6f", fontWeight: 600, marginBottom: 6 },
-  loadingWrap: { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 180, gap: 14 },
-  spinner: { width: 36, height: 36, border: "3px solid #e0eeeb", borderTopColor: "#4a7c6f", borderRadius: "50%", animation: "spin 0.8s linear infinite" },
-  loadingText: { color: "#6b6560", fontSize: "0.88rem" },
+  breathe: { background: "#e0eeeb", border: "1px solid #7aab9e", borderRadius: 12, padding: "8px 14px", fontSize: "0.78rem", color: "#4a7c6f", fontWeight: 500, display: "flex", alignItems: "center", gap: 8, marginBottom: 14, lineHeight: 1.4 },
+  breatheDot: { width: 7, height: 7, borderRadius: "50%", background: "#4a7c6f", display: "inline-block", flexShrink: 0 },
+  card: { background: "#faf8f5", border: "1px solid #ddd8d0", borderRadius: 16, padding: "14px 14px", boxShadow: "0 2px 14px rgba(0,0,0,0.07)", marginBottom: 12, minHeight: 180 },
+  topicTag: { fontSize: "0.62rem", textTransform: "uppercase", letterSpacing: "0.08em", color: "#4a7c6f", fontWeight: 600, marginBottom: 8, fontFamily: "monospace" },
+  questionText: { fontSize: "0.85rem", lineHeight: 1.45, color: "#1e1e1e", fontWeight: 500, marginBottom: 12 },
+  optionsGrid: { display: "flex", flexDirection: "column", gap: 8 },
+  optBtn: { padding: "9px 12px", borderRadius: 10, border: "1.5px solid", fontSize: "0.78rem", cursor: "pointer", textAlign: "left", lineHeight: 1.3, fontFamily: "inherit", transition: "all 0.15s", width: "100%" },
+  explanation: { background: "#e0eeeb", borderLeft: "3px solid #4a7c6f", borderRadius: 8, padding: "10px 12px", fontSize: "0.78rem", lineHeight: 1.55, color: "#1e1e1e", marginTop: 12 },
+  explanationLabel: { fontSize: "0.6rem", textTransform: "uppercase", letterSpacing: "0.06em", color: "#4a7c6f", fontWeight: 600, marginBottom: 4 },
+  loadingWrap: { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 180, gap: 12, padding: "0 8px" },
+  spinner: { width: 32, height: 32, border: "3px solid #e0eeeb", borderTopColor: "#4a7c6f", borderRadius: "50%", animation: "spin 0.8s linear infinite" },
+  loadingText: { color: "#6b6560", fontSize: "0.82rem", textAlign: "center", lineHeight: 1.5 },
+  loadingTip: { background: "#e0eeeb", borderRadius: 12, padding: "12px 14px", fontSize: "0.78rem", color: "#4a7c6f", lineHeight: 1.5, textAlign: "center", marginTop: 4 },
   errorWrap: { textAlign: "center", padding: "24px 12px", color: "#6b6560", display: "flex", flexDirection: "column", gap: 12, alignItems: "center" },
-  sectionLabel: { fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.08em", color: "#6b6560", fontWeight: 600, marginBottom: 12 },
-  sectionGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 24 },
-  sectionBtn: { padding: "20px 12px", borderRadius: 14, border: "1.5px solid #ddd8d0", background: "#faf8f5", color: "#1e1e1e", fontSize: "0.92rem", fontWeight: 600, cursor: "pointer", fontFamily: "inherit", textAlign: "center", lineHeight: 1.3 },
-  sectionTitle: { fontSize: "1.4rem", fontWeight: 700, color: "#4a7c6f", marginBottom: 16 },
-  topicGrid: { display: "flex", flexWrap: "wrap", gap: 10 },
-  topicBtn: { padding: "12px 18px", borderRadius: 20, border: "1.5px solid #ddd8d0", background: "#faf8f5", color: "#1e1e1e", fontSize: "0.86rem", cursor: "pointer", fontFamily: "inherit", lineHeight: 1.3 },
-  statsRow: { display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10 },
-  statCard: { background: "#faf8f5", border: "1px solid #ddd8d0", borderRadius: 12, padding: "14px 8px", textAlign: "center" },
-  statVal: { fontSize: "1.5rem", fontWeight: 700, color: "#4a7c6f", lineHeight: 1 },
-  statLabel: { fontSize: "0.65rem", color: "#6b6560", marginTop: 4, textTransform: "uppercase", letterSpacing: "0.05em" },
-  btnPrimary: { width: "100%", padding: "16px 20px", borderRadius: 14, border: "none", background: "#4a7c6f", color: "white", fontSize: "1rem", fontWeight: 600, cursor: "pointer", fontFamily: "inherit", marginBottom: 10 },
-  btnSecondary: { width: "100%", padding: "16px 20px", borderRadius: 14, border: "1.5px solid #ddd8d0", background: "#faf8f5", color: "#6b6560", fontSize: "0.95rem", fontWeight: 500, cursor: "pointer", fontFamily: "inherit" },
+  sectionLabel: { fontSize: "0.68rem", textTransform: "uppercase", letterSpacing: "0.08em", color: "#6b6560", fontWeight: 600, marginBottom: 10 },
+  sectionGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 },
+  sectionBtn: { padding: "18px 10px", borderRadius: 14, border: "1.5px solid #ddd8d0", background: "#faf8f5", color: "#1e1e1e", fontSize: "0.88rem", fontWeight: 600, cursor: "pointer", fontFamily: "inherit", textAlign: "center", lineHeight: 1.3 },
+  sectionTitle: { fontSize: "1.2rem", fontWeight: 700, color: "#4a7c6f", marginBottom: 14 },
+  topicGrid: { display: "flex", flexWrap: "wrap", gap: 8 },
+  topicBtn: { padding: "10px 16px", borderRadius: 20, border: "1.5px solid #ddd8d0", background: "#faf8f5", color: "#1e1e1e", fontSize: "0.82rem", cursor: "pointer", fontFamily: "inherit", lineHeight: 1.3 },
+  statsRow: { display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 },
+  statCard: { background: "#faf8f5", border: "1px solid #ddd8d0", borderRadius: 12, padding: "12px 6px", textAlign: "center" },
+  statVal: { fontSize: "1.4rem", fontWeight: 700, color: "#4a7c6f", lineHeight: 1 },
+  statLabel: { fontSize: "0.6rem", color: "#6b6560", marginTop: 3, textTransform: "uppercase", letterSpacing: "0.05em" },
+  btnPrimary: { width: "100%", padding: "14px 20px", borderRadius: 14, border: "none", background: "#4a7c6f", color: "white", fontSize: "0.95rem", fontWeight: 600, cursor: "pointer", fontFamily: "inherit", marginBottom: 10 },
+  btnSecondary: { width: "100%", padding: "14px 20px", borderRadius: 14, border: "1.5px solid #ddd8d0", background: "#faf8f5", color: "#6b6560", fontSize: "0.9rem", fontWeight: 500, cursor: "pointer", fontFamily: "inherit" },
   celebrate: { background: "#4a7c6f", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 },
   celebrateInner: { textAlign: "center", display: "flex", flexDirection: "column", gap: 16, alignItems: "center" },
-  celebrateTitle: { fontSize: "2.2rem", fontWeight: 800, color: "white" },
-  celebrateSub: { fontSize: "1rem", color: "#e0eeeb", lineHeight: 1.5 },
+  celebrateTitle: { fontSize: "2rem", fontWeight: 800, color: "white" },
+  celebrateSub: { fontSize: "0.95rem", color: "#e0eeeb", lineHeight: 1.5 },
 };
