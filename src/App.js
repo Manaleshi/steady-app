@@ -179,6 +179,7 @@ const [loadingTip] = useState(() => TIPS[Math.floor(Math.random() * TIPS.length)
 
   return (
     <div style={styles.wrap}>
+      <style>{globalStyles}</style>
       <div style={styles.homeHeader}>
         <div style={styles.logo}>Steady</div>
         <div style={styles.tagline}>MCAT prep for students who freeze on test day.</div>
@@ -218,6 +219,11 @@ const [loadingTip] = useState(() => TIPS[Math.floor(Math.random() * TIPS.length)
     </div>
   );
 }
+
+const globalStyles = `
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes breathe { 0%,100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.6); opacity: 1; } }
+`;
 
 const styles = {
   wrap: { fontFamily: "system-ui, sans-serif", background: "#f0ede8", minHeight: "100vh", padding: "16px 16px 64px", maxWidth: 480, margin: "0 auto" },
