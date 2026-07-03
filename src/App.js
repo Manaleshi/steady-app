@@ -16,6 +16,32 @@ export default function App() {
   const [screen, setScreen] = useState("home");
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
+   const [selectedSection, setSelectedSection] = useState(null);
+  const [selectedTopic, setSelectedTopic] = useState(null);
+  const [question, setQuestion] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [answered, setAnswered] = useState(false);
+  const [chosen, setChosen] = useState(null);
+  const [dailyCount, setDailyCount] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [correct, setCorrect] = useState(0);
+  const [celebrating, setCelebrating] = useState(false);
+  const TIPS = [
+  "🧘 Breathe in for 4 counts, hold for 2, out for 4. Your brain works better relaxed.",
+  "💡 Tip: Eliminate two wrong answers first — your odds jump from 25% to 50%.",
+  "💪 You've chosen to prepare. That already puts you ahead.",
+  "🧠 Tip: If you're stuck, trust your first instinct — it's right more often than you think.",
+  "🌱 Every question you answer makes the next one easier.",
+  "💡 Tip: AnOx RedCat — Anode = Oxidation, Cathode = Reduction. Never forget it.",
+  "🧘 Roll your shoulders back. Unclench your jaw. You've got this.",
+  "💡 Tip: For rate laws, remember — you can only determine order from experiments, not stoichiometry.",
+  "💪 Struggling with a topic means you're learning it. That's the whole point.",
+  "💡 Tip: Henderson-Hasselbalch: pH = pKa + log([A⁻]/[HA]). Memorize this one.",
+  "🌱 One question at a time. That's all this is.",
+  "💡 Tip: In genetics, dominant alleles don't always mean more common in a population.",
+];
+
+const [loadingTip, setLoadingTip] = useState(() => TIPS[Math.floor(Math.random() * TIPS.length)]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -61,32 +87,7 @@ export default function App() {
       </div>
     </div>
   );
-  const [selectedSection, setSelectedSection] = useState(null);
-  const [selectedTopic, setSelectedTopic] = useState(null);
-  const [question, setQuestion] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [answered, setAnswered] = useState(false);
-  const [chosen, setChosen] = useState(null);
-  const [dailyCount, setDailyCount] = useState(0);
-  const [streak, setStreak] = useState(0);
-  const [correct, setCorrect] = useState(0);
-  const [celebrating, setCelebrating] = useState(false);
-  const TIPS = [
-  "🧘 Breathe in for 4 counts, hold for 2, out for 4. Your brain works better relaxed.",
-  "💡 Tip: Eliminate two wrong answers first — your odds jump from 25% to 50%.",
-  "💪 You've chosen to prepare. That already puts you ahead.",
-  "🧠 Tip: If you're stuck, trust your first instinct — it's right more often than you think.",
-  "🌱 Every question you answer makes the next one easier.",
-  "💡 Tip: AnOx RedCat — Anode = Oxidation, Cathode = Reduction. Never forget it.",
-  "🧘 Roll your shoulders back. Unclench your jaw. You've got this.",
-  "💡 Tip: For rate laws, remember — you can only determine order from experiments, not stoichiometry.",
-  "💪 Struggling with a topic means you're learning it. That's the whole point.",
-  "💡 Tip: Henderson-Hasselbalch: pH = pKa + log([A⁻]/[HA]). Memorize this one.",
-  "🌱 One question at a time. That's all this is.",
-  "💡 Tip: In genetics, dominant alleles don't always mean more common in a population.",
-];
-
-const [loadingTip, setLoadingTip] = useState(() => TIPS[Math.floor(Math.random() * TIPS.length)]);
+ 
 
   const loadQuestion = async () => {
     setLoadingTip(TIPS[Math.floor(Math.random() * TIPS.length)]);
