@@ -63,10 +63,7 @@ const [loadingTip, setLoadingTip] = useState(() => TIPS[Math.floor(Math.random()
     });
   };
 
-  const signOut = async () => {
-    await supabase.auth.signOut();
-  };
-
+ 
   if (authLoading) return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", background: "#f0ede8" }}>
       <div style={{ width: 36, height: 36, border: "3px solid #e0eeeb", borderTopColor: "#4a7c6f", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
