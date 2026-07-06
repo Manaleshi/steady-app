@@ -47,6 +47,7 @@ const [loadingTip, setLoadingTip] = useState(() => TIPS[Math.floor(Math.random()
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       setAuthLoading(false);
+      if (session?.user) loadProgress(session.user.id);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -55,6 +56,50 @@ const [loadingTip, setLoadingTip] = useState(() => TIPS[Math.floor(Math.random()
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const loadProgress = async (userId) => {
+    const { data, error } = await supabase
+      .from('user_progress')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+    
+    if (data) {
+      setStreak(data.streak || 0);
+      setDailyCount(data.daily_count || 0);
+      setCorrect(data.total_correct || 0);
+    } else {
+      // First time user — create their record
+      await supabase.from('user_progress').insert({
+        user_id: userId,
+        streak: 0,
+        daily_count: 0,
+        total_correct: 0,
+        total_answered: 0,
+        last_active: new Date().toISOString().split('T')[0],
+        weak_areas: {}
+      });
+    }
+  };
+
+  const saveProgress = async (isCorrect) => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('user_progress')
+      .select('*')
+      .eq('user_id', user.id)
+      .single();
+    
+    if (data) {
+      await supabase.from('user_progress').update({
+        streak: streak,
+        daily_count: dailyCount + 1,
+        total_correct: isCorrect ? (data.total_correct + 1) : data.total_correct,
+        total_answered: data.total_answered + 1,
+        last_active: new Date().toISOString().split('T')[0],
+      }).eq('user_id', user.id);
+    }
+  };
 
   const signInWithGoogle = async () => {
     await supabase.auth.signInWithOAuth({
@@ -118,6 +163,7 @@ const [loadingTip, setLoadingTip] = useState(() => TIPS[Math.floor(Math.random()
       setStreak(s => s + 1);
       setCelebrating(true);
     }
+    saveProgress(isCorrect);
   };
 
   if (celebrating) return (
