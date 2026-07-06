@@ -52,6 +52,7 @@ const [loadingTip, setLoadingTip] = useState(() => TIPS[Math.floor(Math.random()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+      if (session?.user) loadProgress(session.user.id);
     });
 
     return () => subscription.unsubscribe();
