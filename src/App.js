@@ -76,7 +76,7 @@ const [loadingTip, setLoadingTip] = useState(() => TIPS[Math.floor(Math.random()
       console.log("No record found, creating new one...");
       const { data: insertData, error: insertError } = await supabase
         .from('user_progress')
-        .insert({
+        .upsert({
           user_id: userId,
           streak: 0,
           daily_count: 0,
