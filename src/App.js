@@ -59,27 +59,33 @@ const [loadingTip, setLoadingTip] = useState(() => TIPS[Math.floor(Math.random()
   }, []);
 
   const loadProgress = async (userId) => {
+    console.log("loadProgress called for user:", userId);
     const { data, error } = await supabase
       .from('user_progress')
       .select('*')
       .eq('user_id', userId)
       .single();
     
+    console.log("loadProgress result:", data, error);
+    
     if (data) {
       setStreak(data.streak || 0);
       setDailyCount(data.daily_count || 0);
       setCorrect(data.total_correct || 0);
     } else {
-      // First time user — create their record
-      await supabase.from('user_progress').insert({
-        user_id: userId,
-        streak: 0,
-        daily_count: 0,
-        total_correct: 0,
-        total_answered: 0,
-        last_active: new Date().toISOString().split('T')[0],
-        weak_areas: {}
-      });
+      console.log("No record found, creating new one...");
+      const { data: insertData, error: insertError } = await supabase
+        .from('user_progress')
+        .insert({
+          user_id: userId,
+          streak: 0,
+          daily_count: 0,
+          total_correct: 0,
+          total_answered: 0,
+          last_active: new Date().toISOString().split('T')[0],
+          weak_areas: {}
+        });
+      console.log("Insert result:", insertData, insertError);
     }
   };
 
