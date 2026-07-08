@@ -214,11 +214,10 @@ const [loadingTip, setLoadingTip] = useState(() => TIPS[Math.floor(Math.random()
     const newCount = dailyCount + 1;
     setDailyCount(newCount);
     if (isCorrect) setCorrect(c => c + 1);
+    saveProgress(isCorrect);
     if (newCount >= DAILY_GOAL) {
       setStreak(s => s + 1);
-      setCelebrating(true);
     }
-    saveProgress(isCorrect);
   };
 
   if (celebrating) return (
@@ -293,7 +292,14 @@ const [loadingTip, setLoadingTip] = useState(() => TIPS[Math.floor(Math.random()
             </div>
             {answered && (
               <>
-                <button style={{...styles.btnPrimary, marginTop: 12}} onClick={loadQuestion}>Next Question →</button>
+                <button style={{...styles.btnPrimary, marginTop: 12}} onClick={() => {
+                  if (dailyCount >= DAILY_GOAL) {
+                    setCelebrating(true);
+                  } else {
+                    loadQuestion();
+                  }
+                }}>Next Question →</button>
+                
                 <div style={styles.explanation}>
                   <div style={styles.explanationLabel}>Explanation</div>
                   {question.explanation}
