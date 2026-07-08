@@ -213,7 +213,7 @@ const [loadingTip, setLoadingTip] = useState(() => TIPS[Math.floor(Math.random()
     const isCorrect = idx === question.correct_index;
     const newCount = dailyCount + 1;
     setDailyCount(newCount);
-    if (isCorrect) setCorrect(c => c + 1);
+    if (isCorrect && dailyCount < DAILY_GOAL) setCorrect(c => c + 1);
     saveProgress(isCorrect);
     if (newCount >= DAILY_GOAL) {
       setStreak(s => s + 1);
@@ -298,7 +298,7 @@ const [loadingTip, setLoadingTip] = useState(() => TIPS[Math.floor(Math.random()
                   } else {
                     loadQuestion();
                   }
-                }}>Next Question →</button>
+                }}>{dailyCount >= DAILY_GOAL ? "See Results 🎉" : "Next Question →"}</button>
 
                 <div style={styles.explanation}>
                   <div style={styles.explanationLabel}>Explanation</div>
