@@ -59,33 +59,39 @@ const [loadingTip, setLoadingTip] = useState(() => TIPS[Math.floor(Math.random()
   }, []);
 
   const loadProgress = async (userId) => {
-    console.log("loadProgress called for user:", userId);
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('user_progress')
       .select('*')
       .eq('user_id', userId)
       .single();
     
-    console.log("loadProgress result:", data, error);
-    
     if (data) {
-      setStreak(data.streak || 0);
-      setDailyCount(data.daily_count || 0);
+      const today = new Date().toISOString().split('T')[0];
+      const lastActive = data.last_active;
+      const isNewDay = lastActive !== today;
+      const isYesterday = new Date(today) - new Date(lastActive) === 86400000;
+
+      setStreak(isNewDay && !isYesterday ? 0 : data.streak || 0);
+      setDailyCount(isNewDay ? 0 : data.daily_count || 0);
       setCorrect(data.total_correct || 0);
-    } else {
-      console.log("No record found, creating new one...");
-      const { data: insertData, error: insertError } = await supabase
-        .from('user_progress')
-        .upsert({
-          user_id: userId,
-          streak: 0,
+
+      if (isNewDay) {
+        await supabase.from('user_progress').update({
           daily_count: 0,
-          total_correct: 0,
-          total_answered: 0,
-          last_active: new Date().toISOString().split('T')[0],
-          weak_areas: {}
-        });
-      console.log("Insert result:", insertData, insertError);
+          streak: isYesterday ? data.streak : 0,
+          last_active: today
+        }).eq('user_id', userId);
+      }
+    } else {
+      await supabase.from('user_progress').upsert({
+        user_id: userId,
+        streak: 0,
+        daily_count: 0,
+        total_correct: 0,
+        total_answered: 0,
+        last_active: new Date().toISOString().split('T')[0],
+        weak_areas: {}
+      }, { onConflict: 'user_id' });
     }
   };
 
