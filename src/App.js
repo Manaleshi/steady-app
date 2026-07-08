@@ -226,7 +226,7 @@ const [loadingTip, setLoadingTip] = useState(() => TIPS[Math.floor(Math.random()
       <div style={styles.celebrateInner}>
         <div style={{ fontSize: "4rem" }}>🎉</div>
         <div style={styles.celebrateTitle}>Session Complete!</div>
-        <div style={styles.celebrateSub}>{correct} out of {DAILY_GOAL} correct · Streak: {streak} day{streak !== 1 ? "s" : ""} 🔥</div>
+        <div style={styles.celebrateSub}>{Math.round((correct/DAILY_GOAL)*100)}% correct · Streak: {streak} day{streak !== 1 ? "s" : ""} 🔥</div>
         <div style={styles.breakBox}>
           <div style={styles.breakTitle}>Take a 5 minute break</div>
           <div style={styles.breakSub}>Your brain needs time to lock in what you just learned.</div>
@@ -299,7 +299,7 @@ const [loadingTip, setLoadingTip] = useState(() => TIPS[Math.floor(Math.random()
                     loadQuestion();
                   }
                 }}>Next Question →</button>
-                
+
                 <div style={styles.explanation}>
                   <div style={styles.explanationLabel}>Explanation</div>
                   {question.explanation}
@@ -342,7 +342,7 @@ const [loadingTip, setLoadingTip] = useState(() => TIPS[Math.floor(Math.random()
       </div>
 
       <div style={styles.progressWrap}>
-        <div style={styles.progressLabel}>{dailyCount}/{DAILY_GOAL} questions today</div>
+        <div style={styles.progressLabel}>{dailyCount}/{DAILY_GOAL} · {dailyCount > 0 ? Math.round((correct/dailyCount)*100) : 0}% correct</div>
         <div style={styles.progressBar}>
           <div style={{ ...styles.progressFill, width: `${(dailyCount / DAILY_GOAL) * 100}%` }} />
         </div>
