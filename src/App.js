@@ -115,7 +115,8 @@ const [loadingTip, setLoadingTip] = useState(() => TIPS[Math.floor(Math.random()
 
       setStreak(isNewDay && !isYesterday ? 0 : data.streak || 0);
       setDailyCount(0);
-      setCorrect(data.total_correct || 0);
+      // Don't load total_correct into session correct count
+      // setCorrect(data.total_correct || 0);
 
       if (isNewDay) {
         await supabase.from('user_progress').update({
