@@ -185,24 +185,41 @@ const [loadingTip, setLoadingTip] = useState(() => TIPS[Math.floor(Math.random()
   );
  
 
-  const loadQuestion = async () => {
+  const [questionQueue, setQuestionQueue] = useState([]);
+
+const loadSession = async (section, topic) => {
     setLoadingTip(TIPS[Math.floor(Math.random() * TIPS.length)]);
     setLoading(true);
     setQuestion(null);
     setAnswered(false);
     setChosen(null);
     try {
-      const res = await fetch(`${BACKEND_URL}/question`, {
+      const res = await fetch(`${BACKEND_URL}/questions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic: selectedTopic, section: selectedSection }),
+        body: JSON.stringify({ topic: topic, section: section, count: 10 }),
       });
-      const data = await res.json();
-      setQuestion(data);
+      const questions = await res.json();
+      const [first, ...rest] = questions;
+      setQuestion(first);
+      setQuestionQueue(rest);
     } catch (err) {
       setQuestion({ error: true });
     }
     setLoading(false);
+  };
+
+const loadQuestion = () => {
+    setLoadingTip(TIPS[Math.floor(Math.random() * TIPS.length)]);
+    setAnswered(false);
+    setChosen(null);
+    if (questionQueue.length > 0) {
+      const [next, ...rest] = questionQueue;
+      setQuestion(next);
+      setQuestionQueue(rest);
+    } else {
+      setQuestion({ error: true });
+    }
   };
 
   const selectAnswer = (idx) => {
@@ -324,7 +341,7 @@ const [loadingTip, setLoadingTip] = useState(() => TIPS[Math.floor(Math.random()
       <div style={styles.topicGrid}>
         {SECTIONS[selectedSection].map(topic => (
           <button key={topic} style={styles.topicBtn}
-            onClick={() => { setSelectedTopic(topic); setScreen("question"); loadQuestion(); }}>
+            onClick={() => { setSelectedTopic(topic); setScreen("question"); loadSession(selectedSection, topic); }}>
             {topic}
           </button>
         ))}
