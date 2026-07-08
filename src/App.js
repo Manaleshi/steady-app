@@ -114,7 +114,7 @@ const [loadingTip, setLoadingTip] = useState(() => TIPS[Math.floor(Math.random()
       const isYesterday = new Date(today) - new Date(lastActive) === 86400000;
 
       setStreak(isNewDay && !isYesterday ? 0 : data.streak || 0);
-      setDailyCount(isNewDay ? 0 : data.daily_count || 0);
+      setDailyCount(0);
       setCorrect(data.total_correct || 0);
 
       if (isNewDay) {
