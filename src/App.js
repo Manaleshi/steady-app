@@ -68,6 +68,7 @@ export default function App() {
   const [streak, setStreak] = useState(0);
   const [correct, setCorrect] = useState(0);
   const [celebrating, setCelebrating] = useState(false);
+  const [questionQueue, setQuestionQueue] = useState([]);
   const TIPS = [
   "🧘 Breathe in for 4 counts, hold for 2, out for 4. Your brain works better relaxed.",
   "💡 Tip: Eliminate two wrong answers first — your odds jump from 25% to 50%.",
@@ -185,7 +186,7 @@ const [loadingTip, setLoadingTip] = useState(() => TIPS[Math.floor(Math.random()
   );
  
 
-  const [questionQueue, setQuestionQueue] = useState([]);
+  
 
 const loadSession = async (section, topic) => {
     setLoadingTip(TIPS[Math.floor(Math.random() * TIPS.length)]);
