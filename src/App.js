@@ -12,6 +12,48 @@ const SECTIONS = {
 
 const DAILY_GOAL = 10;
 
+function BreakTimer({ onComplete }) {
+  const [seconds, setSeconds] = useState(300);
+
+  useEffect(() => {
+    if (seconds <= 0) {
+      onComplete();
+      return;
+    }
+    const timer = setTimeout(() => setSeconds(s => s - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [seconds, onComplete]);
+
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  const progress = ((300 - seconds) / 300) * 100;
+
+  return (
+    <div style={{ textAlign: "center", marginTop: 24 }}>
+      <div style={{ position: "relative", width: 120, height: 120, margin: "0 auto 16px" }}>
+        <svg width="120" height="120" style={{ transform: "rotate(-90deg)" }}>
+          <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="8" />
+          <circle cx="60" cy="60" r="54" fill="none" stroke="white" strokeWidth="8"
+            strokeDasharray={`${2 * Math.PI * 54}`}
+            strokeDashoffset={`${2 * Math.PI * 54 * (1 - progress / 100)}`}
+            style={{ transition: "stroke-dashoffset 1s linear" }}
+          />
+        </svg>
+        <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", fontSize: "1.8rem", fontWeight: 700, color: "white" }}>
+          {mins}:{secs.toString().padStart(2, "0")}
+        </div>
+      </div>
+      <div style={{ fontSize: "0.82rem", color: "#e0eeeb" }}>
+        {seconds > 240 ? "Close your eyes and breathe..." :
+         seconds > 180 ? "Roll your shoulders back..." :
+         seconds > 120 ? "You're doing great..." :
+         seconds > 60 ? "Almost there..." :
+         "Get ready for your next session!"}
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [screen, setScreen] = useState("home");
   const [user, setUser] = useState(null);
@@ -181,16 +223,16 @@ const [loadingTip, setLoadingTip] = useState(() => TIPS[Math.floor(Math.random()
 
   if (celebrating) return (
     <div style={styles.celebrate}>
+      <style>{globalStyles}</style>
       <div style={styles.celebrateInner}>
         <div style={{ fontSize: "4rem" }}>🎉</div>
-        <div style={styles.celebrateTitle}>Daily Goal Complete!</div>
+        <div style={styles.celebrateTitle}>Session Complete!</div>
         <div style={styles.celebrateSub}>{correct} out of {DAILY_GOAL} correct · Streak: {streak} day{streak !== 1 ? "s" : ""} 🔥</div>
-        <button style={styles.btnPrimary} onClick={() => { setCelebrating(false); setDailyCount(0); setCorrect(0); setScreen("home"); }}>
-          Done for Today
-        </button>
-        <button style={styles.btnSecondary} onClick={() => { setCelebrating(false); }}>
-          Keep Going
-        </button>
+        <div style={styles.breakBox}>
+          <div style={styles.breakTitle}>Take a 5 minute break</div>
+          <div style={styles.breakSub}>Your brain needs time to lock in what you just learned.</div>
+          <BreakTimer onComplete={() => { setCelebrating(false); setDailyCount(0); setCorrect(0); setScreen("home"); }} />
+        </div>
       </div>
     </div>
   );
@@ -376,4 +418,7 @@ const styles = {
   celebrateInner: { textAlign: "center", display: "flex", flexDirection: "column", gap: 16, alignItems: "center" },
   celebrateTitle: { fontSize: "2rem", fontWeight: 800, color: "white" },
   celebrateSub: { fontSize: "0.95rem", color: "#e0eeeb", lineHeight: 1.5 },
+  breakBox: { background: "rgba(255,255,255,0.15)", borderRadius: 16, padding: "20px 24px", marginTop: 20, width: "100%" },
+  breakTitle: { fontSize: "1.1rem", fontWeight: 700, color: "white", marginBottom: 6 },
+  breakSub: { fontSize: "0.82rem", color: "#e0eeeb", lineHeight: 1.5 },
 };
