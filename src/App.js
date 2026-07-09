@@ -213,7 +213,7 @@ export default function App() {
     }
   };
 
-  const selectAnswer = (idx) => {
+const selectAnswer = (idx) => {
     if (answered) return;
     setAnswered(true);
     setChosen(idx);
@@ -223,6 +223,7 @@ export default function App() {
     if (isCorrect) setCorrect(c => c + 1);
     saveProgress(isCorrect);
     if (newCount >= DAILY_GOAL) setStreak(s => s + 1);
+    if (newCount < DAILY_GOAL) prefetchNext(selectedSection, selectedTopic);
   };
 
   if (authLoading) return (
