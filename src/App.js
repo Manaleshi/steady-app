@@ -14,39 +14,31 @@ const DAILY_GOAL = 10;
 
 function AnimalPhoto() {
   const [imgUrl, setImgUrl] = useState(null);
-  const apis = [
-    "https://api.thecatapi.com/v1/images/search",
-    "https://dog.ceo/api/breeds/image/random"
-  ];
 
   useEffect(() => {
+    const apis = [
+      "https://api.thecatapi.com/v1/images/search",
+      "https://dog.ceo/api/breeds/image/random"
+    ];
     const api = apis[Math.floor(Math.random() * apis.length)];
     fetch(api)
       .then(r => r.json())
       .then(data => {
-        if (data.message) setImgUrl(data.message); // dog api
-        else if (data[0]?.url) setImgUrl(data[0].url); // cat api
+        if (data.message) setImgUrl(data.message);
+        else if (data[0]?.url) setImgUrl(data[0].url);
       })
       .catch(() => setImgUrl(null));
   }, []);
 
   if (!imgUrl) return <div style={{ width: 140, height: 140, borderRadius: 16, background: "#e0eeeb" }} />;
-
-  return (
-    <img src={imgUrl} alt="calming animal" 
-      style={{ width: 140, height: 140, borderRadius: 16, objectFit: "cover", boxShadow: "0 2px 12px rgba(0,0,0,0.1)" }} 
-    />
-  );
+  return <img src={imgUrl} alt="calming animal" style={{ width: 140, height: 140, borderRadius: 16, objectFit: "cover", boxShadow: "0 2px 12px rgba(0,0,0,0.1)" }} />;
 }
 
 function BreakTimer({ onComplete }) {
   const [seconds, setSeconds] = useState(300);
 
   useEffect(() => {
-    if (seconds <= 0) {
-      onComplete();
-      return;
-    }
+    if (seconds <= 0) { onComplete(); return; }
     const timer = setTimeout(() => setSeconds(s => s - 1), 1000);
     return () => clearTimeout(timer);
   }, [seconds, onComplete]);
@@ -81,22 +73,7 @@ function BreakTimer({ onComplete }) {
   );
 }
 
-export default function App() {
-  const [screen, setScreen] = useState("home");
-  const [user, setUser] = useState(null);
-  const [authLoading, setAuthLoading] = useState(true);
-   const [selectedSection, setSelectedSection] = useState(null);
-  const [selectedTopic, setSelectedTopic] = useState(null);
-  const [question, setQuestion] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [answered, setAnswered] = useState(false);
-  const [chosen, setChosen] = useState(null);
-  const [dailyCount, setDailyCount] = useState(0);
-  const [streak, setStreak] = useState(0);
-  const [correct, setCorrect] = useState(0);
-  const [celebrating, setCelebrating] = useState(false);
-  const [questionQueue, setQuestionQueue] = useState([]);
-  const TIPS = [
+const TIPS = [
   "🧘 Breathe in for 4 counts, hold for 2, out for 4. Your brain works better relaxed.",
   "💡 Tip: Eliminate two wrong answers first — your odds jump from 25% to 50%.",
   "💪 You've chosen to prepare. That already puts you ahead.",
@@ -111,7 +88,27 @@ export default function App() {
   "💡 Tip: In genetics, dominant alleles don't always mean more common in a population.",
 ];
 
-const [loadingTip, setLoadingTip] = useState(() => TIPS[Math.floor(Math.random() * TIPS.length)]);
+const globalStyles = `
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes breathe { 0%,100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.6); opacity: 1; } }
+`;
+
+export default function App() {
+  const [screen, setScreen] = useState("home");
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [selectedSection, setSelectedSection] = useState(null);
+  const [selectedTopic, setSelectedTopic] = useState(null);
+  const [question, setQuestion] = useState(null);
+  const [nextQuestion, setNextQuestion] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [answered, setAnswered] = useState(false);
+  const [chosen, setChosen] = useState(null);
+  const [dailyCount, setDailyCount] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [correct, setCorrect] = useState(0);
+  const [celebrating, setCelebrating] = useState(false);
+  const [loadingTip, setLoadingTip] = useState(() => TIPS[Math.floor(Math.random() * TIPS.length)]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -119,7 +116,6 @@ const [loadingTip, setLoadingTip] = useState(() => TIPS[Math.floor(Math.random()
       setAuthLoading(false);
       if (session?.user) loadProgress(session.user.id);
     });
-
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
     });
@@ -127,23 +123,13 @@ const [loadingTip, setLoadingTip] = useState(() => TIPS[Math.floor(Math.random()
   }, []);
 
   const loadProgress = async (userId) => {
-    const { data } = await supabase
-      .from('user_progress')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
-    
+    const { data } = await supabase.from('user_progress').select('*').eq('user_id', userId).single();
     if (data) {
       const today = new Date().toISOString().split('T')[0];
-      const lastActive = data.last_active;
-      const isNewDay = lastActive !== today;
-      const isYesterday = new Date(today) - new Date(lastActive) === 86400000;
-
+      const isNewDay = data.last_active !== today;
+      const isYesterday = new Date(today) - new Date(data.last_active) === 86400000;
       setStreak(isNewDay && !isYesterday ? 0 : data.streak || 0);
       setDailyCount(0);
-      // Don't load total_correct into session correct count
-      // setCorrect(data.total_correct || 0);
-
       if (isNewDay) {
         await supabase.from('user_progress').update({
           daily_count: 0,
@@ -153,30 +139,19 @@ const [loadingTip, setLoadingTip] = useState(() => TIPS[Math.floor(Math.random()
       }
     } else {
       await supabase.from('user_progress').upsert({
-        user_id: userId,
-        streak: 0,
-        daily_count: 0,
-        total_correct: 0,
-        total_answered: 0,
-        last_active: new Date().toISOString().split('T')[0],
-        weak_areas: {}
+        user_id: userId, streak: 0, daily_count: 0, total_correct: 0,
+        total_answered: 0, last_active: new Date().toISOString().split('T')[0], weak_areas: {}
       }, { onConflict: 'user_id' });
     }
   };
 
   const saveProgress = async (isCorrect) => {
     if (!user) return;
-    const { data } = await supabase
-      .from('user_progress')
-      .select('*')
-      .eq('user_id', user.id)
-      .single();
-    
+    const { data } = await supabase.from('user_progress').select('*').eq('user_id', user.id).single();
     if (data) {
       await supabase.from('user_progress').update({
-        streak: streak,
-        daily_count: dailyCount + 1,
-        total_correct: isCorrect ? (data.total_correct + 1) : data.total_correct,
+        streak, daily_count: dailyCount + 1,
+        total_correct: isCorrect ? data.total_correct + 1 : data.total_correct,
         total_answered: data.total_answered + 1,
         last_active: new Date().toISOString().split('T')[0],
       }).eq('user_id', user.id);
@@ -190,11 +165,70 @@ const [loadingTip, setLoadingTip] = useState(() => TIPS[Math.floor(Math.random()
     });
   };
 
- 
+  const fetchOneQuestion = async (section, topic) => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/question`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ topic, section }),
+      });
+      return await res.json();
+    } catch {
+      return { error: true };
+    }
+  };
+
+  const prefetchNext = (section, topic) => {
+    fetchOneQuestion(section, topic).then(q => setNextQuestion(q));
+  };
+
+  const loadSession = async (section, topic) => {
+    setLoadingTip(TIPS[Math.floor(Math.random() * TIPS.length)]);
+    setLoading(true);
+    setQuestion(null);
+    setNextQuestion(null);
+    setAnswered(false);
+    setChosen(null);
+    const q = await fetchOneQuestion(section, topic);
+    setQuestion(q);
+    setLoading(false);
+    prefetchNext(section, topic);
+  };
+
+  const loadQuestion = () => {
+    setLoadingTip(TIPS[Math.floor(Math.random() * TIPS.length)]);
+    setAnswered(false);
+    setChosen(null);
+    if (nextQuestion) {
+      setQuestion(nextQuestion);
+      setNextQuestion(null);
+      prefetchNext(selectedSection, selectedTopic);
+    } else {
+      setLoading(true);
+      fetchOneQuestion(selectedSection, selectedTopic).then(q => {
+        setQuestion(q);
+        setLoading(false);
+        prefetchNext(selectedSection, selectedTopic);
+      });
+    }
+  };
+
+  const selectAnswer = (idx) => {
+    if (answered) return;
+    setAnswered(true);
+    setChosen(idx);
+    const isCorrect = idx === question.correct_index;
+    const newCount = dailyCount + 1;
+    setDailyCount(newCount);
+    if (isCorrect) setCorrect(c => c + 1);
+    saveProgress(isCorrect);
+    if (newCount >= DAILY_GOAL) setStreak(s => s + 1);
+  };
+
   if (authLoading) return (
     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", background: "#f0ede8" }}>
       <div style={{ width: 36, height: 36, border: "3px solid #e0eeeb", borderTopColor: "#4a7c6f", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <style>{globalStyles}</style>
     </div>
   );
 
@@ -211,58 +245,6 @@ const [loadingTip, setLoadingTip] = useState(() => TIPS[Math.floor(Math.random()
       </div>
     </div>
   );
- 
-
-  
-
-const loadSession = async (section, topic) => {
-    setLoadingTip(TIPS[Math.floor(Math.random() * TIPS.length)]);
-    setLoading(true);
-    setQuestion(null);
-    setAnswered(false);
-    setChosen(null);
-    try {
-      const res = await fetch(`${BACKEND_URL}/questions`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic: topic, section: section, count: 10 }),
-      });
-      const questions = await res.json();
-      const [first, ...rest] = questions;
-      setQuestion(first);
-      setQuestionQueue(rest);
-    } catch (err) {
-      setQuestion({ error: true });
-    }
-    setLoading(false);
-  };
-
-const loadQuestion = () => {
-    setLoadingTip(TIPS[Math.floor(Math.random() * TIPS.length)]);
-    setAnswered(false);
-    setChosen(null);
-    if (questionQueue.length > 0) {
-      const [next, ...rest] = questionQueue;
-      setQuestion(next);
-      setQuestionQueue(rest);
-    } else {
-      setQuestion({ error: true });
-    }
-  };
-
-  const selectAnswer = (idx) => {
-    if (answered) return;
-    setAnswered(true);
-    setChosen(idx);
-    const isCorrect = idx === question.correct_index;
-    const newCount = dailyCount + 1;
-    setDailyCount(newCount);
-    if (isCorrect && dailyCount < DAILY_GOAL) setCorrect(c => c + 1);
-    saveProgress(isCorrect);
-    if (newCount >= DAILY_GOAL) {
-      setStreak(s => s + 1);
-    }
-  };
 
   if (celebrating) return (
     <div style={styles.celebrate}>
@@ -270,10 +252,11 @@ const loadQuestion = () => {
       <div style={styles.celebrateInner}>
         <div style={{ fontSize: "4rem" }}>🎉</div>
         <div style={styles.celebrateTitle}>Session Complete!</div>
-        <div style={styles.celebrateSub}>{Math.round((correct/DAILY_GOAL)*100)}% correct · Streak: {streak} day{streak !== 1 ? "s" : ""} 🔥</div>
+        <div style={styles.celebrateSub}>{Math.round((correct / DAILY_GOAL) * 100)}% correct · Streak: {streak} day{streak !== 1 ? "s" : ""} 🔥</div>
         <div style={styles.breakBox}>
           <div style={styles.breakTitle}>Take a 5 minute break</div>
           <div style={styles.breakSub}>Your brain needs time to lock in what you just learned.</div>
+          <AnimalPhoto />
           <BreakTimer onComplete={() => { setCelebrating(false); setDailyCount(0); setCorrect(0); setScreen("home"); }} />
         </div>
       </div>
@@ -288,31 +271,28 @@ const loadQuestion = () => {
         <div style={styles.headerTitle}>Steady</div>
         <div style={styles.streakBadge}>{streak}🔥</div>
       </div>
-
       <div style={styles.progressWrap}>
         <div style={styles.progressLabel}>{dailyCount}/{DAILY_GOAL} today</div>
         <div style={styles.progressBar}>
           <div style={{ ...styles.progressFill, width: `${(dailyCount / DAILY_GOAL) * 100}%` }} />
         </div>
       </div>
-
       <div style={styles.breathe}>
         <span style={styles.breatheDot} />
         Take a breath. You know this.
       </div>
-
       <div style={styles.card}>
         {loading && (
           <div style={styles.loadingWrap}>
-            <AnimalPhoto />
-            <div style={styles.loadingText}>Preparing your session…</div>
+            <div style={styles.spinner} />
+            <div style={styles.loadingText}>Preparing your question…</div>
             <div style={styles.loadingTip}>{loadingTip}</div>
           </div>
         )}
         {question?.error && !loading && (
           <div style={styles.errorWrap}>
             <div>⚠️ Couldn't load question.</div>
-            <button style={styles.btnPrimary} onClick={loadQuestion}>Try Again</button>
+            <button style={styles.btnPrimary} onClick={() => loadSession(selectedSection, selectedTopic)}>Try Again</button>
           </div>
         )}
         {question && !question.error && !loading && (
@@ -336,14 +316,10 @@ const loadQuestion = () => {
             </div>
             {answered && (
               <>
-                <button style={{...styles.btnPrimary, marginTop: 12}} onClick={() => {
-                  if (dailyCount >= DAILY_GOAL) {
-                    setCelebrating(true);
-                  } else {
-                    loadQuestion();
-                  }
+                <button style={{ ...styles.btnPrimary, marginTop: 12 }} onClick={() => {
+                  if (dailyCount >= DAILY_GOAL) setCelebrating(true);
+                  else loadQuestion();
                 }}>{dailyCount >= DAILY_GOAL ? "See Results 🎉" : "Next Question →"}</button>
-
                 <div style={styles.explanation}>
                   <div style={styles.explanationLabel}>Explanation</div>
                   {question.explanation}
@@ -353,13 +329,12 @@ const loadQuestion = () => {
           </>
         )}
       </div>
-
-      
     </div>
   );
 
   if (screen === "topics") return (
     <div style={styles.wrap}>
+      <style>{globalStyles}</style>
       <div style={styles.header}>
         <button style={styles.back} onClick={() => setScreen("home")}>← Back</button>
         <div style={styles.headerTitle}>Steady</div>
@@ -384,14 +359,12 @@ const loadQuestion = () => {
         <div style={styles.logo}>Steady</div>
         <div style={styles.tagline}>MCAT prep for students who freeze on test day.</div>
       </div>
-
       <div style={styles.progressWrap}>
-        <div style={styles.progressLabel}>{dailyCount}/{DAILY_GOAL} · {dailyCount > 0 ? Math.round((correct/dailyCount)*100) : 0}% correct</div>
+        <div style={styles.progressLabel}>{dailyCount}/{DAILY_GOAL} today</div>
         <div style={styles.progressBar}>
           <div style={{ ...styles.progressFill, width: `${(dailyCount / DAILY_GOAL) * 100}%` }} />
         </div>
       </div>
-
       <div style={styles.sectionLabel}>Choose a section</div>
       <div style={styles.sectionGrid}>
         {Object.keys(SECTIONS).map(section => (
@@ -401,7 +374,6 @@ const loadQuestion = () => {
           </button>
         ))}
       </div>
-
       <div style={styles.statsRow}>
         <div style={styles.statCard}>
           <div style={styles.statVal}>{streak}</div>
@@ -416,14 +388,14 @@ const loadQuestion = () => {
           <div style={styles.statLabel}>Accuracy</div>
         </div>
       </div>
+      <div style={{ marginTop: 20, textAlign: "center" }}>
+        <button onClick={async () => { await supabase.auth.signOut(); }} style={{ background: "none", border: "none", color: "#6b6560", fontSize: "0.75rem", cursor: "pointer", textDecoration: "underline" }}>
+          Sign out
+        </button>
+      </div>
     </div>
   );
 }
-
-const globalStyles = `
-  @keyframes spin { to { transform: rotate(360deg); } }
-  @keyframes breathe { 0%,100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.6); opacity: 1; } }
-`;
 
 const styles = {
   wrap: { fontFamily: "system-ui, sans-serif", background: "#f0ede8", minHeight: "100vh", padding: "16px 16px 64px", maxWidth: 480, margin: "0 auto" },
@@ -468,7 +440,7 @@ const styles = {
   celebrateInner: { textAlign: "center", display: "flex", flexDirection: "column", gap: 16, alignItems: "center" },
   celebrateTitle: { fontSize: "2rem", fontWeight: 800, color: "white" },
   celebrateSub: { fontSize: "0.95rem", color: "#e0eeeb", lineHeight: 1.5 },
-  breakBox: { background: "rgba(255,255,255,0.15)", borderRadius: 16, padding: "20px 24px", marginTop: 20, width: "100%" },
+  breakBox: { background: "rgba(255,255,255,0.15)", borderRadius: 16, padding: "20px 24px", marginTop: 20, width: "100%", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 },
   breakTitle: { fontSize: "1.1rem", fontWeight: 700, color: "white", marginBottom: 6 },
   breakSub: { fontSize: "0.82rem", color: "#e0eeeb", lineHeight: 1.5 },
 };
