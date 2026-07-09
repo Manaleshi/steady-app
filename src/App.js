@@ -12,6 +12,33 @@ const SECTIONS = {
 
 const DAILY_GOAL = 10;
 
+function AnimalPhoto() {
+  const [imgUrl, setImgUrl] = useState(null);
+  const apis = [
+    "https://api.thecatapi.com/v1/images/search",
+    "https://dog.ceo/api/breeds/image/random"
+  ];
+
+  useEffect(() => {
+    const api = apis[Math.floor(Math.random() * apis.length)];
+    fetch(api)
+      .then(r => r.json())
+      .then(data => {
+        if (data.message) setImgUrl(data.message); // dog api
+        else if (data[0]?.url) setImgUrl(data[0].url); // cat api
+      })
+      .catch(() => setImgUrl(null));
+  }, []);
+
+  if (!imgUrl) return <div style={{ width: 140, height: 140, borderRadius: 16, background: "#e0eeeb" }} />;
+
+  return (
+    <img src={imgUrl} alt="calming animal" 
+      style={{ width: 140, height: 140, borderRadius: 16, objectFit: "cover", boxShadow: "0 2px 12px rgba(0,0,0,0.1)" }} 
+    />
+  );
+}
+
 function BreakTimer({ onComplete }) {
   const [seconds, setSeconds] = useState(300);
 
@@ -277,8 +304,8 @@ const loadQuestion = () => {
       <div style={styles.card}>
         {loading && (
           <div style={styles.loadingWrap}>
-            <div style={styles.spinner} />
-            <div style={styles.loadingText}>Preparing your question…</div>
+            <AnimalPhoto />
+            <div style={styles.loadingText}>Preparing your session…</div>
             <div style={styles.loadingTip}>{loadingTip}</div>
           </div>
         )}
