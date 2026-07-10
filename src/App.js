@@ -145,15 +145,32 @@ export default function App() {
     }
   };
 
-  const saveProgress = async (isCorrect) => {
+  const saveProgress = async (isCorrect, topic, section) => {
     if (!user) return;
-    const { data } = await supabase.from('user_progress').select('*').eq('user_id', user.id).single();
+    const { data } = await supabase
+      .from('user_progress')
+      .select('*')
+      .eq('user_id', user.id)
+      .single();
+    
     if (data) {
+      const weak_areas = data.weak_areas || {};
+      const topicKey = topic || selectedTopic;
+      if (topicKey && topicKey !== "Mixed") {
+        if (!weak_areas[topicKey]) {
+          weak_areas[topicKey] = { attempts: 0, correct: 0 };
+        }
+        weak_areas[topicKey].attempts += 1;
+        if (isCorrect) weak_areas[topicKey].correct += 1;
+      }
+
       await supabase.from('user_progress').update({
-        streak, daily_count: dailyCount + 1,
+        streak,
+        daily_count: dailyCount + 1,
         total_correct: isCorrect ? data.total_correct + 1 : data.total_correct,
         total_answered: data.total_answered + 1,
         last_active: new Date().toISOString().split('T')[0],
+        weak_areas,
       }).eq('user_id', user.id);
     }
   };
@@ -230,7 +247,7 @@ const selectAnswer = (idx) => {
     const newCount = dailyCount + 1;
     setDailyCount(newCount);
     if (isCorrect) setCorrect(c => c + 1);
-    saveProgress(isCorrect);
+    saveProgress(isCorrect, question.topic, question.section);
     if (newCount >= DAILY_GOAL) setStreak(s => s + 1);
     if (newCount < DAILY_GOAL) prefetchNext(selectedSection, selectedTopic);
   };
@@ -375,15 +392,14 @@ const selectAnswer = (idx) => {
           <div style={{ ...styles.progressFill, width: `${(dailyCount / DAILY_GOAL) * 100}%` }} />
         </div>
       </div>
-      <div style={styles.sectionLabel}>Choose a section</div>
-      <div style={styles.sectionGrid}>
-        {Object.keys(SECTIONS).map(section => (
-          <button key={section} style={styles.sectionBtn}
-            onClick={() => { setSelectedSection(section); setScreen("topics"); }}>
-            {section}
-          </button>
-        ))}
-      </div>
+      <button style={styles.btnPrimary} onClick={() => {
+        setSelectedSection("Mixed");
+        setSelectedTopic("Mixed");
+        setScreen("question");
+        loadSession("Mixed", "Mixed");
+      }}>
+        Start Session 🎯
+      </button>
       <div style={styles.statsRow}>
         <div style={styles.statCard}>
           <div style={styles.statVal}>{streak}</div>
