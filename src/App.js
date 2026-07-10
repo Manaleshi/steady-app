@@ -294,7 +294,7 @@ const selectAnswer = (idx) => {
     <div style={styles.wrap}>
       <style>{globalStyles}</style>
       <div style={styles.header}>
-        <button style={styles.back} onClick={() => setScreen("home")}>← Home</button>
+        <button style={styles.back} onClick={() => { setScreen("home"); setQuestion(null); setAnswered(false); setChosen(null); }}>← Home</button>
         <div style={styles.headerTitle}>Steady</div>
         <div style={styles.streakBadge}>{streak}🔥</div>
       </div>
