@@ -294,7 +294,7 @@ const selectAnswer = (idx) => {
     <div style={styles.wrap}>
       <style>{globalStyles}</style>
       <div style={styles.header}>
-        <button style={styles.back} onClick={() => setScreen("topics")}>← Back</button>
+        <button style={styles.back} onClick={() => setScreen("home")}>← Home</button>
         <div style={styles.headerTitle}>Steady</div>
         <div style={styles.streakBadge}>{streak}🔥</div>
       </div>
@@ -359,26 +359,7 @@ const selectAnswer = (idx) => {
     </div>
   );
 
-  if (screen === "topics") return (
-    <div style={styles.wrap}>
-      <style>{globalStyles}</style>
-      <div style={styles.header}>
-        <button style={styles.back} onClick={() => setScreen("home")}>← Back</button>
-        <div style={styles.headerTitle}>Steady</div>
-        <div style={styles.streakBadge}>{streak}🔥</div>
-      </div>
-      <div style={styles.sectionTitle}>{selectedSection}</div>
-      <div style={styles.topicGrid}>
-        {SECTIONS[selectedSection].map(topic => (
-          <button key={topic} style={styles.topicBtn}
-            onClick={() => { setSelectedTopic(topic); setScreen("question"); loadSession(selectedSection, topic); }}>
-            {topic}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-
+  
   return (
     <div style={styles.wrap}>
       <style>{globalStyles}</style>
