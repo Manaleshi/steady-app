@@ -165,12 +165,21 @@ export default function App() {
     });
   };
 
-  const fetchOneQuestion = async (section, topic) => {
+  const fetchOneQuestion = async () => {
     try {
-      const res = await fetch(`${BACKEND_URL}/question`, {
+      const { data } = await supabase
+        .from('user_progress')
+        .select('total_answered, weak_areas')
+        .eq('user_id', user.id)
+        .single();
+
+      const res = await fetch(`${BACKEND_URL}/smart-question`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic, section }),
+        body: JSON.stringify({
+          total_answered: data?.total_answered || 0,
+          weak_areas: data?.weak_areas || {}
+        }),
       });
       return await res.json();
     } catch {
@@ -178,8 +187,8 @@ export default function App() {
     }
   };
 
-  const prefetchNext = (section, topic) => {
-    fetchOneQuestion(section, topic).then(q => setNextQuestion(q));
+  const prefetchNext = () => {
+    fetchOneQuestion().then(q => setNextQuestion(q));
   };
 
   const loadSession = async (section, topic) => {
@@ -189,10 +198,10 @@ export default function App() {
     setNextQuestion(null);
     setAnswered(false);
     setChosen(null);
-    const q = await fetchOneQuestion(section, topic);
+    const q = await fetchOneQuestion();
     setQuestion(q);
     setLoading(false);
-    prefetchNext(section, topic);
+    prefetchNext();
   };
 
   const loadQuestion = () => {
@@ -205,10 +214,10 @@ export default function App() {
       prefetchNext(selectedSection, selectedTopic);
     } else {
       setLoading(true);
-      fetchOneQuestion(selectedSection, selectedTopic).then(q => {
+      fetchOneQuestion().then(q => {
         setQuestion(q);
         setLoading(false);
-        prefetchNext(selectedSection, selectedTopic);
+        prefetchNext();
       });
     }
   };
