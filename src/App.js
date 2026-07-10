@@ -3,12 +3,7 @@ import { supabase } from "./supabase";
 
 const BACKEND_URL = "https://web-production-02d30.up.railway.app";
 
-const SECTIONS = {
-  "Chem & Physics": ["Stoichiometry", "Thermodynamics", "Electrochemistry", "Kinetics", "Acids & Bases", "Fluids & Gas Laws", "Optics & Light", "Electricity & Circuits"],
-  "Bio & Biochem": ["Cell Biology", "Genetics", "Metabolism", "Enzymes", "Molecular Biology", "Anatomy & Physiology"],
-  "Psych & Sociology": ["Sensation & Perception", "Memory & Cognition", "Motivation", "Social Behavior", "Demographics"],
-  "CARS": ["Humanities Passages", "Social Science Passages"],
-};
+
 
 const DAILY_GOAL = 10;
 
