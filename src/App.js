@@ -307,7 +307,7 @@ const selectAnswer = (idx) => {
         )}
         {question && !question.error && !loading && (
           <>
-            <div style={styles.topicTag}>{selectedSection} · {selectedTopic}</div>
+            <div style={styles.topicTag}>{question.section || selectedSection} · {question.topic || selectedTopic}</div>
             <div style={styles.questionText}>{question.question}</div>
             <div style={styles.optionsGrid}>
               {question.options.map((opt, i) => {
